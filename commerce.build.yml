@@ -1,0 +1,56 @@
+# version: "3.7"
+# services:
+#   mssql:
+#     image: sitecore-xc1-mssql
+#     build:
+#       isolation: ${ISOLATION}
+#       context: ./docker/build/mssql/standalone
+#       args:
+#         BASE_IMAGE:  xc1-mssql:latest
+#         SPE_IMAGE: ${SITECORE_MODULE_REGISTRY}spe-assets:${SPE_VERSION}
+#         SXA_IMAGE: ${SITECORE_MODULE_REGISTRY}sxa-xp1-assets:${SXA_VERSION}
+#   mssql-init:
+#     image: sitecore-xc1-mssql-init
+#     build:
+#       isolation: ${ISOLATION}
+#       context: ./docker/build/mssql/init
+#       args:
+#         BASE_IMAGE: xc1-mssql-init:latest
+#         SPE_IMAGE: ${SITECORE_MODULE_REGISTRY}spe-assets:${SPE_VERSION}
+#         SXA_IMAGE: ${SITECORE_MODULE_REGISTRY}sxa-xp1-assets:${SXA_VERSION}
+#   solr-init:
+#     image: sitecore-xc1-solr-init
+#     build:
+#       isolation: ${ISOLATION}
+#       context: ./docker/build/solr-init
+#       args:
+#         BASE_IMAGE: xc1-solr-init:latest
+#         SXA_IMAGE: ${SITECORE_MODULE_REGISTRY}sxa-xp1-assets:${SXA_VERSION}
+#   solr-init-searchstax:
+#     image: sitecore-xc1-solr-init-searchstax
+#     build:
+#       isolation: ${ISOLATION}
+#       context: ./docker/build/solr-init
+#       args:
+#         BASE_IMAGE: xc1-solr-init-searchstax:latest
+#         SXA_IMAGE: ${SITECORE_MODULE_REGISTRY}sxa-xp1-assets:${SXA_VERSION}
+
+#   # cd:
+#   #   image: sitecore-xc1-cd
+#   #   build:
+#   #     isolation: ${ISOLATION}
+#   #     context: ./docker/build/cd
+#   #     args:
+#   #       BASE_IMAGE: ${XC_SITECORE_DOCKER_REGISTRY}sitecore-xc1-cd:${XC_PACKAGES_TAG}
+#   #       SXA_RESOURCES_IMAGE: ${SITECORE_MODULE_REGISTRY}sxa-xp1-assets:${SXA_VERSION}
+#   #       XC_RESOURCES_CONFIGS: cdcxa
+#   # cm:
+#   #   image: sitecore-xc1-cm
+#   #   build:
+#   #     isolation: ${ISOLATION}
+#   #     context: ./docker/build/cm
+#   #     args:
+#   #       BASE_IMAGE: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-cm
+#   #       SPE_RESOURCES_IMAGE: ${SITECORE_MODULE_REGISTRY}spe-assets:${SPE_VERSION}
+#   #       SXA_RESOURCES_IMAGE: ${SITECORE_MODULE_REGISTRY}sxa-xp1-assets:${SXA_VERSION}
+#   #       XC_RESOURCES_CONFIGS: cmcxa

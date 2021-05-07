@@ -1,0 +1,218 @@
+version: "3.7"
+services:
+  # solution:
+  #   image: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-solution
+  #   build:
+  #     context: .
+  #     args:
+  #       BASE_IMAGE: ${SOLUTION_BASE_IMAGE}
+  #       BUILD_IMAGE: ${SOLUTION_BUILD_IMAGE}
+  #       BUILD_CONFIGURATION: ${BUILD_CONFIGURATION}
+  #   scale: 0
+  redis:
+    image: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-redis
+    build:
+      context: ./docker/build/redis
+      args:
+        BASE_IMAGE: ${SITECORE_DOCKER_REGISTRY}sitecore-redis:${SITECORE_VERSION}
+#   mssql:
+#     image: sitecore-xc1-mssql
+#     build:
+#       isolation: ${ISOLATION}
+#       context: ./docker/build/mssql/standalone
+#       args:
+#         BASE_IMAGE: ${XC_NONPRODUCTION_SITECORE_DOCKER_REGISTRY}sitecore-xc1-mssql:${XC_PACKAGES_TAG}  
+#         SPE_IMAGE: ${SITECORE_MODULE_REGISTRY}spe-assets:${SPE_VERSION}
+#         SXA_IMAGE: ${SITECORE_MODULE_REGISTRY}sxa-xp1-assets:${SXA_VERSION}
+#         # HORIZON_RESOURCES_IMAGE: ${SITECORE_MODULE_REGISTRY}horizon-integration-xp1-assets:${HORIZON_ASSET_VERSION}
+#     volumes:
+#       - ${LOCAL_DATA_PATH}\mssql:c:\data
+#   mssql-init:
+#     image: sitecore-xc1-mssql-init
+#     build:
+#       isolation: ${ISOLATION}
+#       context: ./docker/build/mssql/init
+#       args:
+#         BASE_IMAGE: ${XC_SITECORE_DOCKER_REGISTRY}xc1-mssql-init:${XC_PACKAGES_TAG}
+#         SPE_IMAGE: ${SITECORE_MODULE_REGISTRY}spe-assets:${SPE_VERSION}
+#         SXA_IMAGE: ${SITECORE_MODULE_REGISTRY}sxa-xp1-assets:${SXA_VERSION}
+#   solr-init:
+#     image: sitecore-xc1-solr-init
+#     build:
+#       context: ./docker/build/solr-init
+#       args:
+#         BASE_IMAGE: ${XC_SITECORE_DOCKER_REGISTRY}xc1-solr-init:${XC_PACKAGES_TAG}
+#         SXA_IMAGE: ${SITECORE_MODULE_REGISTRY}sxa-xp1-assets:${SXA_SITECORE_TAG}
+#   solr-init-searchstax:
+#     image: sitecore-xc1-solr-init-searchstax
+#     build:
+#       isolation: ${ISOLATION}
+#       context: ./docker/build/solr-init
+#       args:
+#         BASE_IMAGE: ${XC_SITECORE_DOCKER_REGISTRY}xc1-solr-init-searchstax:${XC_PACKAGES_TAG}
+#         SXA_IMAGE: ${SITECORE_MODULE_REGISTRY}sxa-xp1-assets:${SXA_VERSION}
+  id:
+    image: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-id
+    build:
+      context: ./docker/build/id
+      args:
+        BASE_IMAGE: ${XC_SITECORE_DOCKER_REGISTRY}sitecore-xc-id:${XC_PACKAGES_TAG}
+    # environment: 
+    #   Sitecore_Sitecore__IdentityServer__Clients__DefaultClient__AllowedCorsOrigins__AllowedCorsOriginsGroup2: https://${HRZ_HOST}
+  cd:
+    image: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-cd
+    build:
+      isolation: ${ISOLATION}
+      context: ./docker/build/cd
+      args:
+        BASE_IMAGE: ${XC_SITECORE_DOCKER_REGISTRY}sitecore-xc1-cd:${XC_PACKAGES_TAG}
+        SXA_IMAGE: ${SITECORE_MODULE_REGISTRY}sxa-xp1-assets:${SXA_VERSION}
+        TOOLING_IMAGE: ${SITECORE_TOOLS_REGISTRY}sitecore-docker-tools-assets:${TOOLS_VERSION}
+        # SOLUTION_IMAGE: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-solution
+        XC_RESOURCES_CONFIGS: cdcxa
+    # depends_on:
+    #     - solution
+    volumes:
+      - ${LOCAL_DEPLOY_PATH}\website:C:\deploy
+      - ${LOCAL_DATA_PATH}\cd:C:\inetpub\wwwroot\App_Data\logs
+    environment:
+      SITECORE_DEVELOPMENT_PATCHES: CustomErrorsOff
+      entrypoint: powershell -Command "& C:\tools\entrypoints\iis\Development.ps1"
+  cm:
+    image: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-cm
+    build:
+      context: ./docker/build/cm
+      args:
+        BASE_IMAGE: ${XC_SITECORE_DOCKER_REGISTRY}xc1-cm:${XC_PACKAGES_TAG}
+        SPE_IMAGE: ${SITECORE_MODULE_REGISTRY}spe-assets:${SPE_SITECORE_TAG}
+        SXA_IMAGE: ${SITECORE_MODULE_REGISTRY}sxa-xp1-assets:${SXA_VERSION}
+        TOOLING_IMAGE: ${SITECORE_TOOLS_REGISTRY}sitecore-docker-tools-assets:${TOOLS_VERSION}
+        # # SOLUTION_IMAGE: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-solution
+        XC_RESOURCES_CONFIGS: cmcxa
+        # HORIZON_RESOURCES_IMAGE: ${SITECORE_MODULE_REGISTRY}horizon-integration-xp1-assets:${HORIZON_ASSET_VERSION}
+    # depends_on:
+    #   - solution
+    volumes:
+      - ${LOCAL_DEPLOY_PATH}\website:C:\deploy
+      - ${LOCAL_DATA_PATH}\cm:C:\inetpub\wwwroot\App_Data\logs
+    environment:
+      SITECORE_DEVELOPMENT_PATCHES: CustomErrorsOff
+    #   Sitecore_Horizon_ClientHost: https://${HRZ_HOST}
+    entrypoint: powershell -Command "& C:\tools\entrypoints\iis\Development.ps1"
+  prc:
+    image: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-prc
+    build:
+      context: ./docker/build/prc
+      args:
+        BASE_IMAGE: ${XC_SITECORE_DOCKER_REGISTRY}sitecore-xc1-prc:${XC_PACKAGES_TAG}
+        # SOLUTION_IMAGE: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-solution
+    # depends_on:
+    #   - solution
+  xdbcollection:
+    image: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-xdbcollection
+    build:
+      context: ./docker/build/xdbcollection
+      args:
+        BASE_IMAGE: ${XC_SITECORE_DOCKER_REGISTRY}sitecore-xc1-xdbcollection:${XC_PACKAGES_TAG}
+        # SOLUTION_IMAGE: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-solution
+    # depends_on:
+    #   - solution
+  xdbsearch:
+    image: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-xdbsearch
+    build:
+      context: ./docker/build/xdbsearch
+      args:
+        BASE_IMAGE: ${XC_SITECORE_DOCKER_REGISTRY}sitecore-xc1-xdbsearch:${XC_PACKAGES_TAG}
+        # SOLUTION_IMAGE: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-solution
+    # depends_on:
+    #   - solution
+  xdbautomation:
+    image: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-xdbautomation
+    build:
+      context: ./docker/build/xdbautomation
+      args:
+        BASE_IMAGE: ${XC_SITECORE_DOCKER_REGISTRY}sitecore-xc1-xdbautomation:${XC_PACKAGES_TAG}
+        # SOLUTION_IMAGE: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-solution
+    # depends_on:
+    #   - solution
+  xdbautomationrpt:
+    image: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-xdbautomationrpt
+    build:
+      context: ./docker/build/xdbautomationrpt
+      args:
+        BASE_IMAGE: ${SITECORE_DOCKER_REGISTRY}sitecore-xp1-xdbautomationrpt:${SITECORE_VERSION}
+  cortexprocessing:
+    image: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-cortexprocessing
+    build:
+      context: ./docker/build/cortexprocessing
+      args:
+        BASE_IMAGE: ${SITECORE_DOCKER_REGISTRY}sitecore-xp1-cortexprocessing:${SITECORE_VERSION}
+  cortexreporting:
+    image: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-cortexreporting
+    build:
+      context: ./docker/build/cortexreporting
+      args:
+        BASE_IMAGE: ${SITECORE_DOCKER_REGISTRY}sitecore-xp1-cortexreporting:${SITECORE_VERSION}
+  xdbrefdata:
+    image: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-xdbrefdata
+    build:
+      context: ./docker/build/xdbrefdata
+      args:
+        BASE_IMAGE: ${SITECORE_DOCKER_REGISTRY}sitecore-xp1-xdbrefdata:${SITECORE_VERSION}
+  xdbsearchworker:
+    image: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-xdbsearchworker
+    build:
+      context: ./docker/build/xdbsearchworker
+      args:
+        BASE_IMAGE: ${XC_SITECORE_DOCKER_REGISTRY}sitecore-xc1-xdbsearchworker:${XC_PACKAGES_TAG}
+        # SOLUTION_IMAGE: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-solution
+    # depends_on:
+    #   - solution
+  xdbautomationworker:
+    image: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-xdbautomationworker
+    build:
+      context: ./docker/build/xdbautomationworker
+      args:
+        BASE_IMAGE: ${XC_SITECORE_DOCKER_REGISTRY}sitecore-xc1-xdbautomationworker:${XC_PACKAGES_TAG}
+        # SOLUTION_IMAGE: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-solution
+    # depends_on:
+    #   - solution
+  cortexprocessingworker:
+    image: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-cortexprocessingworker
+    build:
+      context: ./docker/build/cortexprocessingworker
+      args:
+        BASE_IMAGE: ${SITECORE_DOCKER_REGISTRY}sitecore-xp1-cortexprocessingworker:${SITECORE_VERSION}
+        # SOLUTION_IMAGE: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-solution
+    # depends_on:
+    #   - solution
+  bizfx:
+    image: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-bizfx
+    build:
+      context: ./docker/build/bizfx
+      args:
+        BASE_IMAGE: ${XC_SITECORE_DOCKER_REGISTRY}sitecore-xc-bizfx:${XC_PACKAGES_TAG}
+  engine-authoring:
+    image: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-engineauthoring
+    build:
+      context: ./docker/build/engineauthoring
+      args:
+        BASE_IMAGE: ${XC_SITECORE_DOCKER_REGISTRY}sitecore-xc-engine:${XC_PACKAGES_TAG}
+  engine-shops:
+    image: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-engineshops
+    build:
+      context: ./docker/build/engineshops
+      args:
+        BASE_IMAGE: ${XC_SITECORE_DOCKER_REGISTRY}sitecore-xc-engine:${XC_PACKAGES_TAG}
+  engine-minions:
+    image: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-engineminions
+    build:
+      context: ./docker/build/engineminions
+      args:
+        BASE_IMAGE: ${XC_SITECORE_DOCKER_REGISTRY}sitecore-xc-engine:${XC_PACKAGES_TAG}
+  engine-ops:
+    image: ${REGISTRY}${COMPOSE_PROJECT_NAME}:${VERSION:-latest}-engineops
+    build:
+      context: ./docker/build/engineops
+      args:
+        BASE_IMAGE: ${XC_SITECORE_DOCKER_REGISTRY}sitecore-xc-engine:${XC_PACKAGES_TAG}
